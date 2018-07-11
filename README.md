@@ -2,6 +2,8 @@
 Blocnode is a simple library helping me to organize, structure and modulate my code.
 Every Module is added in the app can use the other module present in the app with a simple require call.
 
+Actual version 0.0.11
+
 There's an example :
 ```Javascript
 

@@ -60,7 +60,6 @@ Blocnode.prototype.Inject = function(namespace, requires) {
     }
 
     let ns = namespace.split('.');
-    console.log(ns);
     let root = this;
 
     for(let i in ns) {

@@ -2,7 +2,7 @@
 Blocnode is a simple library helping me to organize, structure and modulate my code.
 Every Module is added in the app can use the other module present in the app with a simple require call.
 
-Actual version 0.0.12
+Actual version 0.0.14
 
 There's an example in one file:
 ```Javascript
@@ -97,3 +97,35 @@ In this case your main application file is the loader of multiple module that yo
 
 ## Reusability
 When you use multiple files, you can use now your module as the main app file if you want.
+
+## Classes or Instances
+Most of Controller, Service or other are used as Instance. Blocnode can handle some Class with the Factory() function.
+So you can define some class and call them to create Instance later in the System.
+
+#### Example of Factory
+```Javascript
+let Blocnode = require('../src/Singleton.js'); //
+let App = Blocnode('MyApp');
+
+App.Factory('TestFactory', [
+    function(name) {
+        this.name = name;
+        this.say = function() {
+            console.log(`My name is ${this.name}`);
+        }
+    }
+]);
+
+App.Controller('TestCtrl', [
+    'Factories.TestFactory',
+    function(TestFactory) {
+        let me = new TestFactory('Morgiver');
+        me.say();
+    }
+]);
+
+console.log(App);
+```
+
+As you can see, TestFactory is a simple [Function], you can create multiple instance with it.
+TestCtrl is a Javascript Object, a constructed instance.

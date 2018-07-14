@@ -50,7 +50,7 @@ Blocnode.prototype.Require = function(namespace) {
  * @param requires
  * @constructor
  */
-Blocnode.prototype.Inject = function(namespace, requires) {
+Blocnode.prototype.Inject = function(namespace, requires, type = 'instance') {
     let fn = requires[requires.length - 1];
     requires.pop();
 
@@ -67,7 +67,10 @@ Blocnode.prototype.Inject = function(namespace, requires) {
             root[ns[i]] = root[ns[i]] || {};
             root = root[ns[i]];
         }
-        else root[ns[i]] = new fn(...params);
+        else {
+            if(type === 'instance') root[ns[i]] = new fn(...params);
+            else root[ns[i]] = fn;
+        }
     }
 };
 
@@ -101,7 +104,7 @@ Blocnode.prototype.Service = function(name, requires) {
  */
 Blocnode.prototype.Factory = function(name, requires) {
     name = `Factories.${name}`;
-    this.Inject(name, requires);
+    this.Inject(name, requires, 'class');
 };
 
 module.exports = Blocnode;

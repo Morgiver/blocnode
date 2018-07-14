@@ -102,9 +102,9 @@ Blocnode.prototype.Service = function(name, requires) {
  * @param requires
  * @constructor
  */
-Blocnode.prototype.Factory = function(name) {
+Blocnode.prototype.Factory = function(name, requires) {
     name = `Factories.${name}`;
-    this.Inject(name, [], 'class');
+    this.Inject(name, requires, 'class');
 };
 
 module.exports = Blocnode;

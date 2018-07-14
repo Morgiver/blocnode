@@ -1,7 +1,7 @@
-let Blocnode = require('../src/Blocnode.js');
-let App = new Blocnode('MyApp');
+let Blocnode = require('../src/Singleton.js');
+let App = Blocnode('MyApp');
 
-let Module1 = App.Module('ModuleOne');
+let Module1 = Blocnode('ModuleOne');
 Module1.Service('MyService', [
     function() {
         this.say = function() {
@@ -10,7 +10,7 @@ Module1.Service('MyService', [
     }
 ]);
 
-let Module2 = App.Module('ModuleTwo');
+let Module2 = Blocnode('ModuleTwo');
 Module2.Controller('ModuleTwoCtrl', [
     'ModuleOne.Services.MyService',
     function(MyService) {
@@ -20,7 +20,7 @@ Module2.Controller('ModuleTwoCtrl', [
     }
 ]);
 
-let Module3 = App.Module('ModuleThree');
+let Module3 = Blocnode('ModuleThree');
 Module3.Service('MyListener', [
     'ModuleTwo.Controllers.ModuleTwoCtrl',
     function(ModuleTwoCtrl) {

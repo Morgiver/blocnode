@@ -1,6 +1,6 @@
 {
   "name": "blocnode",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Simple Framework for Client and Server NodeJS App",
   "main": "index.js",
   "scripts": {

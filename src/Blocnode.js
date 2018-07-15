@@ -36,7 +36,10 @@ Blocnode.prototype.Module = function(namespace) {
 Blocnode.prototype.Require = function(namespace) {
     let ns   = namespace.split(".");
     let root = null;
-    if(ns[0] === this.name) root = this;
+    if(ns[0] === this.name) {
+        root = this;
+        ns.shift();
+    }
     else root = this.root;
 
     for(let i in ns) {

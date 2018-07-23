@@ -1,6 +1,6 @@
 let Blocnode = require('../src/Singleton.js');
-let Module1 = Blocnode('ModuleOne');
-Module1.Service('MyService', [
+let ModuleOne = Blocnode('ModuleOne');
+ModuleOne.Service('MyService', [
     function() {
         this.say = function() {
             console.log('Im a service in Module1');

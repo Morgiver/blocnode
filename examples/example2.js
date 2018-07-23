@@ -1,8 +1,8 @@
-let Blocnode = require('../src/Singleton.js'); //
+let Blocnode = require('../src/Singleton.js');
 let App = Blocnode('MyApp');
 
-require('./Module1');
-require('./Module2');
-require('./Module3');
+require('./ModuleOne');
+require('./ModuleTwo');
+require('./ModuleThree');
 
 console.log(App);

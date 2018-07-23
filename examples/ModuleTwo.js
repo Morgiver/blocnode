@@ -1,6 +1,6 @@
 let Blocnode = require('../src/Singleton.js');
-let Module2 = Blocnode('ModuleTwo');
-Module2.Controller('ModuleTwoCtrl', [
+let ModuleTwo = Blocnode('ModuleTwo', ['ModuleOne']);
+ModuleTwo.Controller('ModuleTwoCtrl', [
     'ModuleOne.Services.MyService',
     function(MyService) {
         this.useToSay = function() {

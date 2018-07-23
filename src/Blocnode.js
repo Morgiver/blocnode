@@ -12,10 +12,29 @@ function Blocnode(name, root) {
 /**
  * Module
  * @param namespace
+ * @param dependencies[]
  * @returns {Blocnode}
- * @constructor
  */
-Blocnode.prototype.Module = function(namespace) {
+Blocnode.prototype.Module = function(namespace, dependencies) {
+    let undefinedDependencies = false;
+
+    for(let i in dependencies) {
+        if(!this.root[dependencies[i]]) {
+            undefinedDependencies = true;
+            console.log(`Dependencie ${dependencies[i]} undefined`);
+        }
+    }
+
+    if(undefinedDependencies) console.log(new Error(`Some dependencies are undefined`));
+    else return this.InjectModule(namespace);
+};
+
+/**
+ * InjectModule
+ * @param namespace
+ * @returns {Blocnode}
+ */
+Blocnode.prototype.InjectModule = function(namespace) {
     let ns = namespace.split(".");
     let root = this;
 
@@ -31,7 +50,6 @@ Blocnode.prototype.Module = function(namespace) {
  * Require
  * @param namespace
  * @returns {*|Blocnode}
- * @constructor
  */
 Blocnode.prototype.Require = function(namespace) {
     let ns   = namespace.split(".");
@@ -53,7 +71,6 @@ Blocnode.prototype.Require = function(namespace) {
  * Inject
  * @param name
  * @param requires
- * @constructor
  */
 Blocnode.prototype.Inject = function(namespace, requires, type = 'instance') {
     let fn = requires[requires.length - 1];
@@ -83,7 +100,6 @@ Blocnode.prototype.Inject = function(namespace, requires, type = 'instance') {
  * Controller
  * @param name
  * @param requires
- * @constructor
  */
 Blocnode.prototype.Controller = function(name, requires) {
     name = `Controllers.${name}`;
@@ -94,7 +110,6 @@ Blocnode.prototype.Controller = function(name, requires) {
  * Service
  * @param name
  * @param requires
- * @constructor
  */
 Blocnode.prototype.Service = function(name, requires) {
     name = `Services.${name}`;
@@ -105,10 +120,29 @@ Blocnode.prototype.Service = function(name, requires) {
  * Factory
  * @param name
  * @param requires
- * @constructor
  */
 Blocnode.prototype.Factory = function(name, requires) {
     name = `Factories.${name}`;
+    this.Inject(name, requires);
+};
+
+/**
+ * AbstractClass
+ * @param name
+ * @param requires
+ */
+Blocnode.prototype.AbstractClass = function(name, requires) {
+    name = `AbstractClass.${name}`;
+    this.Inject(name, requires, 'class');
+};
+
+/**
+ * ConcreteClass
+ * @param name
+ * @param requires
+ */
+Blocnode.prototype.ConcreteClass = function(name, requires) {
+    name = `ConcreteClass.${name}`;
     this.Inject(name, requires, 'class');
 };
 

@@ -1,6 +1,6 @@
 let Blocnode = require('../src/Singleton.js');
-let Module3 = Blocnode('ModuleThree');
-Module3.Service('MyListener', [
+let ModuleThree = Blocnode('ModuleThree', ['ModuleOne', 'ModuleTwo']);
+ModuleThree.Service('MyListener', [
     'ModuleTwo.Controllers.ModuleTwoCtrl',
     function(ModuleTwoCtrl) {
         setInterval(function() {

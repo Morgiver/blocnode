@@ -35,4 +35,3 @@ Module.$class('MyModuleClass', [
 ]);
 
 App.$bootstrap();
-App.$setPriorityComponents();

@@ -1,14 +1,14 @@
 const Blocnode = require('../src/Singleton.js');
 const App      = Blocnode('MyApp');
 
-App.$function('RandomRoad.MyFunction', [
+App.$function('RandomName.MyFunction', [
     function(name) {
         console.log(`My name is ${name}`);
     }
 ]);
 
-App.$class('AnOtherRoad.MyClass', [
-    'RandomRoad.MyFunction',
+App.$class('MyClass', [
+    'MyApp.RandomName.MyFunction',
     function MyClass(MyFunction, name) {
         this.myname = name;
         this.sayIt = function() {
@@ -17,8 +17,8 @@ App.$class('AnOtherRoad.MyClass', [
     }
 ]);
 
-App.$instance('ExampleRoadTo.MyInstance', [
-    'AnOtherRoad.MyClass',
+App.$instance('MyInstance', [
+    'MyApp.MyClass',
     function MyInstance(MyClass) {
         let newClass = new MyClass('Morgiver');
         newClass.sayIt();

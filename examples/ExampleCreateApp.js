@@ -1,5 +1,3 @@
-process.env.dev = true;
-
 const Blocnode = require('../src/Singleton.js');
 const App      = Blocnode('MyApp');
 
@@ -20,12 +18,13 @@ App.$instance('Http', [
 ]);
 
 App.$function('startServer', [
-    'Http',
+    'MyApp.Http',
     function(Http, seconde) {
+        console.log(seconde);
         Http.start(seconde);
     }
 ]);
 
 App.$bootstrap();
 console.log(App);
-App.startServer(5000);
+App.MyApp.startServer(5000);

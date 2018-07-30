@@ -114,16 +114,7 @@ Blocnode.prototype.$requires = function(namespace) {
      * Spliting the namespace
      */
     let parts = namespace.split('.');
-    let ns    = null;
-
-    /**
-     * Check if the module need a self component or a component from an other module.
-     * Setting the root.
-     */
-    if(parts[0] === this.$name) {
-        ns = this;
-        parts.shift();
-    } else ns = this.$root;
+    let ns    = this.$root;
 
     /**
      * Recover the component

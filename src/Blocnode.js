@@ -5,145 +5,224 @@
  * @constructor
  */
 function Blocnode(name, root) {
-    this.name = name;
-    this.root = root || this;
+    this.$name       = name;
+    this.$root       = root || this;
+    this.$components = [];
 }
 
 /**
- * Module
- * @param namespace
- * @param dependencies[]
- * @returns {Blocnode}
+ * $logger
+ * @param message
  */
-Blocnode.prototype.Module = function(namespace, dependencies) {
-    let undefinedDependencies = false;
+Blocnode.prototype.$logger = function(message) {
+    if(process.env.dev) console.log(message);
+};
 
-    for(let i in dependencies) {
-        if(!this.root[dependencies[i]]) {
-            undefinedDependencies = true;
-            console.log(`Dependencie ${dependencies[i]} undefined`);
+/**
+ * $setPriorityComponents
+ */
+Blocnode.prototype.$setPriorityComponents = function() {
+    for(let i in this.$components) {
+        let components = this.$components[i];
+        for(let j in components.requires) {
+            let compo = components.requires[j];
+            if(typeof compo == 'string') {
+                for(let k in this.$components) {
+                    if(compo == this.$components[k].namespace) {
+                        this.$components[k].priority++;
+                    }
+                }
+            }
         }
     }
 
-    if(undefinedDependencies) console.log(new Error(`Some dependencies are undefined`));
-    else return this.InjectModule(namespace);
+    this.$components.sort(function(a, b) {
+        return b.priority - a.priority;
+    });
 };
 
 /**
- * InjectModule
+ * $bootstrap
+ * @description Browser all component waiting to be injected and give a note on every component to know the order of
+ *              injection.
+ */
+Blocnode.prototype.$bootstrap = function() {
+    /**
+     * Set Priority
+     */
+    this.$setPriorityComponents();
+    for(let i in this.$components) {
+        this.$inject(this.$components[i].namespace, this.$components[i].type, this.$components[i].requires);
+    }
+};
+
+/**
+ * $module
  * @param namespace
  * @returns {Blocnode}
  */
-Blocnode.prototype.InjectModule = function(namespace) {
-    let ns = namespace.split(".");
-    let root = this;
+Blocnode.prototype.$module = function(namespace) {
+    /**
+     * Splitting namespace
+     */
+    let parts = namespace.split('.');
+    let ns = this;
 
-    for(let i in ns) {
-        root[ns[i]] = root[ns[i]] || new Blocnode(ns[i], this.root);
-        root = root[ns[i]];
+    /**
+     * Creating the new module and injecting hes components
+     */
+    for(let i in parts) {
+        ns[parts[i]] = ns[parts[i]] || new Blocnode(parts[i], this.$root);
+        ns = ns[parts[i]];
     }
 
-    return root;
+    return ns;
 };
 
 /**
- * Require
+ * $_addComponent
+ * @param type
  * @param namespace
- * @returns {*|Blocnode}
- */
-Blocnode.prototype.Require = function(namespace) {
-    let ns   = namespace.split(".");
-    let root = null;
-    if(ns[0] === this.name) {
-        root = this;
-        ns.shift();
-    }
-    else root = this.root;
-
-    for(let i in ns) {
-        root = root[ns[i]];
-    }
-
-    return root;
-};
-
-/**
- * Inject
- * @param name
+ * @param opt
  * @param requires
  */
-Blocnode.prototype.Inject = function(namespace, requires, type = 'instance') {
-    let fn = requires[requires.length - 1];
-    requires.pop();
+Blocnode.prototype.$_addComponent = function(type, namespace, requires) {
+    /**
+     * Add name of module in namespace
+     * @type {string}
+     */
+    namespace = `${this.$name}.${namespace}`;
 
-    let params = [];
+    /**
+     * Adding the new components in components array to be injected on $bootstrap() call
+     */
+    this.$root.$components.push({
+        type: type,
+        namespace: namespace,
+        requires: requires,
+        priority: 0
+    });
+};
+
+/**
+ * $requires
+ * @param namespace
+ * @returns {*}
+ */
+Blocnode.prototype.$requires = function(namespace) {
+    /**
+     * Spliting the namespace
+     */
+    let parts = namespace.split('.');
+    let ns    = null;
+
+    /**
+     * Check if the module need a self component or a component from an other module.
+     * Setting the root.
+     */
+    if(parts[0] === this.$name) {
+        ns = this;
+        parts.shift();
+    } else ns = this.$root;
+
+    /**
+     * Recover the component
+     */
+    for(let i in parts) {
+        ns = ns[parts[i]];
+    }
+
+    return ns;
+};
+
+/**
+ * $inject
+ * @param namespace
+ * @param isInstance
+ * @param requires[]
+ */
+Blocnode.prototype.$inject = function(namespace, type, requires) {
+    /**
+     * Get the component in the requires array (always on last index)
+     */
+    let component = requires[requires.length - 1];
+    requires.pop(); // no need the component in the requires array anymore;
+
+    /**
+     * Prepare the components requirements
+     */
+    let requiredParams = [];
     for(let i in requires) {
-        params.push(this.Require(requires[i]));
+        requiredParams.push(this.$requires(requires[i]));
     }
 
-    let ns = namespace.split('.');
-    let root = this;
+    /**
+     * Browser on to the namespace and injecting the component.
+     * Creating new space in the namespace if needed.
+     */
+    let parts = namespace.split('.');
+    let ns    = this;
 
-    for(let i in ns) {
-        if(i < ns.length - 1) {
-            root[ns[i]] = root[ns[i]] || {};
-            root = root[ns[i]];
-        }
-        else {
-            if(type === 'instance') root[ns[i]] = new fn(...params);
-            else root[ns[i]] = fn;
+    for(let i in parts) {
+        if(i < parts.length - 1) {
+            ns[parts[i]] = ns[parts[i]] || {};
+            ns = ns[parts[i]];
+        } else {
+            switch(type) {
+                case "instance":
+                    ns[parts[i]] = new component(...requiredParams);
+                    break;
+                case "function":
+                    ns[parts[i]] = function() {
+                        return component(...requiredParams, ...arguments);
+                    };
+                    break;
+                case "class":
+                    ns[parts[i]] = function() {
+                        return new component(...requiredParams, ...arguments);
+                    };
+                    break;
+                case "object":
+                    ns[parts[i]] = component;
+                    break;
+            }
         }
     }
 };
 
 /**
- * Controller
- * @param name
+ * $function
+ * @param namespace
  * @param requires
  */
-Blocnode.prototype.Controller = function(name, requires) {
-    name = `Controllers.${name}`;
-    this.Inject(name, requires);
+Blocnode.prototype.$function = function(namespace, requires) {
+    this.$_addComponent('function', namespace, requires)
 };
 
 /**
- * Service
- * @param name
+ * $instance
+ * @param namespace
  * @param requires
  */
-Blocnode.prototype.Service = function(name, requires) {
-    name = `Services.${name}`;
-    this.Inject(name, requires);
+Blocnode.prototype.$instance = function(namespace, requires) {
+    this.$_addComponent('instance', namespace, requires);
 };
 
 /**
- * Factory
- * @param name
+ * $class
+ * @param namespace
  * @param requires
  */
-Blocnode.prototype.Factory = function(name, requires) {
-    name = `Factories.${name}`;
-    this.Inject(name, requires);
+Blocnode.prototype.$class = function(namespace, requires) {
+    this.$_addComponent('class', namespace, requires);
 };
 
 /**
- * AbstractClass
- * @param name
- * @param requires
+ * $object
+ * @param namespace
  */
-Blocnode.prototype.AbstractClass = function(name, requires) {
-    name = `AbstractClass.${name}`;
-    this.Inject(name, requires, 'class');
-};
-
-/**
- * ConcreteClass
- * @param name
- * @param requires
- */
-Blocnode.prototype.ConcreteClass = function(name, requires) {
-    name = `ConcreteClass.${name}`;
-    this.Inject(name, requires, 'class');
+Blocnode.prototype.$object = function(namespace) {
+    this.$_addComponent('object', namespace, []);
 };
 
 module.exports = Blocnode;

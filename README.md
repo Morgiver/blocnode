@@ -1,2 +1,2 @@
 # Blocnode
-Rewriting the documentation, back soon
+Blocnode is a little library that help dev to organise there code.

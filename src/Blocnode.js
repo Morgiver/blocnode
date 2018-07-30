@@ -212,8 +212,8 @@ Blocnode.prototype.$class = function(namespace, requires) {
  * $object
  * @param namespace
  */
-Blocnode.prototype.$object = function(namespace) {
-    this.$_addComponent('object', namespace, []);
+Blocnode.prototype.$object = function(namespace, requires) {
+    this.$_addComponent('object', namespace, requires);
 };
 
 module.exports = Blocnode;

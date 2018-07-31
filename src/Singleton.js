@@ -13,7 +13,10 @@ function Singleton(name) {
     };
 
     this.getInstance = function(name) {
-        if(instance !== undefined) return this.createModuleInstance(name);
+        if(instance !== undefined) {
+            if(instance.$name === name) return instance;
+            else return this.createModuleInstance(name);
+        }
         else return this.createApplicationInstance(name);
     };
 

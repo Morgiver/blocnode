@@ -122,13 +122,26 @@ Blocnode.prototype.$_addComponent = function(type, namespace, requires) {
 
     /**
      * Adding the new components in components array to be injected on $bootstrap() call
+     * If the another component has the same namespace it will be overwritten
      */
-    this.$root.$components.push({
+    let newComponent = {
         type: type,
         namespace: namespace,
         requires: requires,
         priority: 0
-    });
+    };
+
+    let isExist = undefined;
+    for(let i in this.$root.$components) {
+        if(this.$components[i].namespace == namespace) {
+            isExist = i;
+        }
+    }
+
+    if(isExist) {
+        // Overwritting
+        this.$root.$components[isExist] = newComponent;
+    } else this.$root.$components.push(newComponent); // New Component
 };
 
 /**

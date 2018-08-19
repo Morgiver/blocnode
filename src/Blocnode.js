@@ -32,8 +32,6 @@ Blocnode.prototype.$browseComponentRequirements = function(component) {
         }
     }
 
-    this.$logger(`Browsing ${component.namespace}`);
-
     for(let j in component.requires) {
         let requirement = component.requires[j];
         if(typeof requirement == 'string') {
@@ -51,6 +49,29 @@ Blocnode.prototype.$addPriorityPoint = function(namespace) {
     for(let k in this.$components) {
         if(namespace == this.$components[k].namespace) {
             this.$components[k].priority++;
+        }
+    }
+};
+
+/**
+ * $dropComponent
+ */
+Blocnode.prototype.$dropComponent = function(namespace) {
+    for(let i in this.$root.$components) {
+        if(namespace == this.$root.$components[i].namespace) {
+            delete this.$root.$components[i];
+            break;
+        }
+    }
+
+    let parts = namespace.split('.');
+    let root = this.$root;
+
+    for(let i in parts) {
+        if(i == parts.length - 1) {
+            delete root[parts[i]];
+        } else {
+            root = root[parts[i]];
         }
     }
 };

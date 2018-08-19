@@ -4,7 +4,7 @@
   "description": "Simple Framework for Client and Server NodeJS App",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -17,5 +17,8 @@
     "NodeJS"
   ],
   "author": "Morgiver",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^5.2.0"
+  }
 }

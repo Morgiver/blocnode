@@ -19,21 +19,48 @@ Blocnode.prototype.$logger = function(message) {
 };
 
 /**
+ * $browsComponentRequirements
+ * @param component
+ */
+Blocnode.prototype.$browseComponentRequirements = function(component) {
+    if(typeof component == 'string') {
+        for(let i in this.$components) {
+            if(component == this.$components[i].namespace) {
+                component = this.$components[i];
+                break;
+            }
+        }
+    }
+
+    this.$logger(`Browsing ${component.namespace}`);
+
+    for(let j in component.requires) {
+        let requirement = component.requires[j];
+        if(typeof requirement == 'string') {
+            this.$browseComponentRequirements(requirement);
+            this.$addPriorityPoint(requirement);
+        }
+    }
+};
+
+/**
+ * $addPriorityPoint
+ * @param namespace
+ */
+Blocnode.prototype.$addPriorityPoint = function(namespace) {
+    for(let k in this.$components) {
+        if(namespace == this.$components[k].namespace) {
+            this.$components[k].priority++;
+        }
+    }
+};
+
+/**
  * $setPriorityComponents
  */
 Blocnode.prototype.$setPriorityComponents = function() {
     for(let i in this.$components) {
-        let components = this.$components[i];
-        for(let j in components.requires) {
-            let compo = components.requires[j];
-            if(typeof compo == 'string') {
-                for(let k in this.$components) {
-                    if(compo == this.$components[k].namespace) {
-                        this.$components[k].priority++;
-                    }
-                }
-            }
-        }
+        this.$browseComponentRequirements(this.$components[i]);
     }
 
     this.$components.sort(function(a, b) {

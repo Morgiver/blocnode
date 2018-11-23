@@ -23,9 +23,9 @@ Blocnode.prototype.$logger = function(message) {
  * @param component
  */
 Blocnode.prototype.$browseComponentRequirements = function(component) {
-    if(typeof component == 'string') {
+    if(typeof component === 'string') {
         for(let i in this.$components) {
-            if(component == this.$components[i].namespace) {
+            if(component === this.$components[i].namespace) {
                 component = this.$components[i];
                 break;
             }
@@ -47,7 +47,7 @@ Blocnode.prototype.$browseComponentRequirements = function(component) {
  */
 Blocnode.prototype.$addPriorityPoint = function(namespace) {
     for(let k in this.$components) {
-        if(namespace == this.$components[k].namespace) {
+        if(namespace === this.$components[k].namespace) {
             this.$components[k].priority++;
         }
     }
@@ -58,8 +58,8 @@ Blocnode.prototype.$addPriorityPoint = function(namespace) {
  */
 Blocnode.prototype.$dropComponent = function(namespace) {
     for(let i in this.$root.$components) {
-        if(namespace == this.$root.$components[i].namespace) {
-            delete this.$root.$components[i];
+        if(namespace === this.$root.$components[i].namespace) {
+            this.$root.$components.splice(i, 1);
             break;
         }
     }

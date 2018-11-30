@@ -277,4 +277,12 @@ Blocnode.prototype.$object = function(namespace, requires) {
     this.$_addComponent('object', namespace, requires);
 };
 
+/**
+ * $constant
+ * @type {Blocnode}
+ */
+Blocnode.prototype.$constant = function(namespace, value) {
+    if(!this.$root[namespace]) this.$root[namespace] = value;
+};
+
 module.exports = Blocnode;

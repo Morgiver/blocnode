@@ -7,25 +7,6 @@ class Blocnode {
         let state     = {};
 
         /**
-         * addBloc
-         * @description adding a bloc to the namespace
-         * @param Bloc
-         */
-        this.addBloc = (Bloc) => {
-            if(this.isRoot) {
-                if(!blocs.find(item => item === Bloc.name)) {
-                    if(Bloc.Class && Bloc.Class instanceof Blocnode) {
-                        let newBloc = new Bloc.Class(this);
-
-                        if(!namespace[newBloc.name]) {
-                            namespace[newBloc.name] = newBloc;
-                        }
-                    }
-                }
-            } else Rootbloc.addBloc(Bloc);
-        }
-
-        /**
          * getState
          * @description Access to the state.
          * @returns Object
@@ -33,6 +14,44 @@ class Blocnode {
         this.getState = () => {
             if(this.isRoot) return state;
             else return Rootbloc.getState();
+        };
+
+        /**
+         * addBloc
+         * @description adding a bloc to the namespace
+         * @param Bloc
+         */
+        this.addBloc = (Bloc) => {
+            if(this.isRoot) {
+                if(!blocs.find(item => item === Bloc.name)) {
+                    if(Bloc.Class && Bloc.Class.prototype instanceof Blocnode) {
+                        let newBloc = new Bloc.Class(this);
+
+                        if(!namespace[Bloc.name]) {
+                            namespace[Bloc.name] = newBloc;
+                        }
+                    }
+                }
+            } else Rootbloc.addBloc(Bloc);
+        }
+
+        /**
+         * require
+         * @param pathname
+         * @returns {*}
+         */
+        this.require = (pathname) => {
+            if(this.isRoot) {
+                let parts = pathname.split('.');
+                let root  = namespace;
+
+                for(let i in parts) {
+                    if(root[parts[i]] !== undefined) {
+                        root = root[parts[i]];
+                    } else throw new Error(`Namespace ${parts[i]} is undefined`);
+                }
+                return root;
+            } else return Rootbloc.require(pathname);
         };
 
         if(!Rootbloc) {

@@ -1,1 +1,1 @@
-module.exports = require('./src/Singleton.js');
+module.exports = require('./src/Blocnode.js');

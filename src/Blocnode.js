@@ -1,6 +1,6 @@
 
 class Blocnode {
-    constructor(Rootbloc = null) {
+    constructor(Rootbloc = null, blocs = []) {
         this.isRoot = true;
 
         let namespace = {};

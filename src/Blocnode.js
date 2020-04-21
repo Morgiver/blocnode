@@ -1,4 +1,7 @@
 
+const path = require('path');
+const fs   = require('fs');
+
 class Blocnode {
     constructor(Rootbloc = null, blocs = []) {
         this.isRoot = true;
@@ -64,7 +67,7 @@ class Blocnode {
         }
 
         if(!Rootbloc) {
-            this.localblocspath  = './Blocs';
+            this.localblocspath  = './';
             this.sourceblocspath = './src/Blocs';
 
             /**
@@ -125,15 +128,16 @@ class Blocnode {
              * @returns {Promise<void>}
              */
             this.loadBlocs = async (blocsDir, blocpath) => {
-                let blocPath = path.join(blocsDir, blocpath);
-                let dir = fs.readdirSync(blocPath);
+                let dirBlocPath = path.join(blocsDir, blocpath);
+                let dir = fs.readdirSync(dirBlocPath);
 
                 for(let i in dir) {
                     if(i !== "." && i !== "..") {
-                        if(fs.existsSync(`${blocPath}/${dir[i]}`) &&
-                            fs.lstatSync(`${blocPath}/${dir[i]}`).isDirectory()) {
-                            let bloc = require(`${blocPath}/${dir[i]}`);
-                            this.addBloc(bloc);
+                        let blocpath = path.join(dirBlocPath, dir[i]);
+
+                        if(fs.existsSync(blocpath) &&
+                            fs.lstatSync(blocpath).isDirectory()) {
+                            this.addBloc(require(blocpath));
                         }
                     }
                 }
@@ -180,7 +184,12 @@ class Blocnode {
             /**
              * We're not in the RootBloc, defining it as it is.
              */
-            this.isRoot = false;
+            this.isRoot      = false;
+            let dependencies = [];
+
+            this.addDependency = (name) => {
+                dependencies.push(name);
+            }
         }
     }
 

@@ -198,13 +198,16 @@ class Blocnode {
         }
     }
 
-
+    /**
+     * onReady
+     * @returns {Promise<void>}
+     */
     async onReady() {
         if(this.isRoot) {
             let ns = this.getNamespace();
 
             for(let i in ns) {
-
+                await ns[i].onReady();
             }
         }
     }

@@ -54,5 +54,23 @@ describe('Blocnode', function() {
                 assert.equal(e.message, 'Namespace two is undefined');
             }
         });
+
+        it(`Shouldn't add a non Blocnode Class Bloc`, function() {
+            let bloc = new Blocnode(null, ['two']);
+
+            class TestBloc {
+                constructor() {
+                }
+            }
+
+            try {
+                bloc.addBloc({
+                    name: 'two',
+                    Class: TestBloc
+                });
+            } catch(e) {
+                assert.equal(e.message, `This [ two ] is not a Blocnode class (or extension)`);
+            }
+        });
     });
 });

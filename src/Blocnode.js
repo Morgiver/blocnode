@@ -24,13 +24,13 @@ class Blocnode {
         this.addBloc = (Bloc) => {
             if(this.isRoot) {
                 if(!blocs.find(item => item === Bloc.name)) {
-                    if(Bloc.Class && Bloc.Class.prototype instanceof Blocnode) {
+                    if(Bloc.Class && (Bloc.Class instanceof Blocnode || Bloc.Class.prototype instanceof Blocnode)) {
                         let newBloc = new Bloc.Class(this);
 
                         if(!namespace[Bloc.name]) {
                             namespace[Bloc.name] = newBloc;
                         }
-                    }
+                    } else throw new Error(`This [ ${Bloc.name} ] is not a Blocnode class (or extension)`);
                 }
             } else Rootbloc.addBloc(Bloc);
         }

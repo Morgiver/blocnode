@@ -78,9 +78,6 @@ class Blocnode {
          */
         this.blocReady = async (name) => {
             if(this.isRoot) {
-                //let count = 0;
-                this.log(`Bloc ${name} is ready`);
-
                 for(let i in namespace) {
                     if (i === name && !namespace[i].isReady) {
                         namespace[i].isReady = true;
@@ -101,6 +98,7 @@ class Blocnode {
 
                 if(dependencies.length < 1) {
                     await this.main();
+                    await this.onReady();
                     await Rootbloc.blocReady(this.name);
                 }
             }
@@ -242,13 +240,7 @@ class Blocnode {
      * @returns {Promise<void>}
      */
     async onReady() {
-        if(this.isRoot) {
-            let ns = this.getNamespace();
-
-            for(let i in ns) {
-                await ns[i].onReady();
-            }
-        }
+        this.log(`Bloc ${this.name} is ready !`);
     }
 
     /**

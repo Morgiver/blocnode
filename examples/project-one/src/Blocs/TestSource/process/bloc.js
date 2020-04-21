@@ -15,6 +15,7 @@ class TestSourceBloc extends Blocnode {
 
     async onReady() {
         this.log('Executing onReady Function in Test Source Bloc');
+        super.onReady();
     }
 }
 

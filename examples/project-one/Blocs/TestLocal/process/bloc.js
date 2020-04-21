@@ -5,7 +5,7 @@ class TestLocalBloc extends Blocnode {
     constructor(RootBloc) {
         super(RootBloc);
 
-        this.log('Instantiate Test Local Bloc')
+        this.log('Instantiate Test Local Bloc');
     }
 
     async main() {

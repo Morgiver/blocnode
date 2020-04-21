@@ -4,10 +4,14 @@ const fs   = require('fs');
 
 class Blocnode {
     constructor(Rootbloc = null, blocs = []) {
-        this.isRoot = true;
+        this.name    = null;
+        this.isRoot  = true;
+        this.isReady = true;
 
         let namespace = {};
         let state     = {};
+
+        let dependencies = [];
 
         /**
          * getState
@@ -30,6 +34,7 @@ class Blocnode {
                     if(Bloc.Class && (Bloc.Class instanceof Blocnode || Bloc.Class.prototype instanceof Blocnode)) {
                         if(!namespace[Bloc.name]) {
                             namespace[Bloc.name] = new Bloc.Class(this);
+                            namespace[Bloc.name].name = Bloc.name;
                         }
                     } else throw new Error(`This [ ${Bloc.name} ] is not a Blocnode class (or extension)`);
                 }
@@ -62,9 +67,44 @@ class Blocnode {
          */
         this.log = (message) => {
             if(this.isRoot) {
-                if(state.dev) console.log(`[${new Date()}] ${message}`);
+                if(state.verbose) console.log(`[${new Date()}] ${message}`);
             } else Rootbloc.log(message);
-        }
+        };
+
+        /**
+         * blocReady
+         * @param name
+         * @returns {Promise<void>}
+         */
+        this.blocReady = async (name) => {
+            if(this.isRoot) {
+                //let count = 0;
+                this.log(`Bloc ${name} is ready`);
+
+                for(let i in namespace) {
+                    if (i === name && !namespace[i].isReady) {
+                        namespace[i].isReady = true;
+                    }
+                }
+
+                for(let i in namespace) {
+                    if(i !== name && !namespace[i].isReady) {
+                        await namespace[i].blocReady(name);
+                    }
+                }
+            } else {
+                for(let i in dependencies) {
+                    if(dependencies[i] === name) {
+                        dependencies.splice(i, 1);
+                    }
+                }
+
+                if(dependencies.length < 1) {
+                    await this.main();
+                    await Rootbloc.blocReady(this.name);
+                }
+            }
+        };
 
         if(!Rootbloc) {
             this.localblocspath  = './';
@@ -170,22 +210,12 @@ class Blocnode {
                 await this.loadSourceBlocs(rootDir);
                 await this.loadLocalBlocs(blocsDir);
             }
-
-            /**
-             * initBlocs
-             * @returns {Promise<void>}
-             */
-            this.initBlocs = async () => {
-                for(let i in namespace) {
-                    await namespace[i].main();
-                }
-            }
         } else {
             /**
-             * We're not in the RootBloc, defining it as it is.
+             * We're not in the RootBloc
              */
-            this.isRoot      = false;
-            let dependencies = [];
+            this.isRoot  = false;
+            this.isReady = false;
 
             this.addDependency = (name) => {
                 dependencies.push(name);
@@ -203,7 +233,7 @@ class Blocnode {
             this.log("Initializing Application");
 
             await this.loadAllBlocs(rootDir, localBlocs)
-            await this.initBlocs();
+            await this.blocReady("START_APPLICATION");
         }
     }
 
@@ -230,7 +260,6 @@ class Blocnode {
     async main(rootDir, localBlocs) {
         if(this.isRoot) {
             await this.initialize(rootDir, localBlocs);
-            await this.onReady();
         }
     }
 }

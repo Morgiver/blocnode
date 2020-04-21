@@ -6,6 +6,7 @@ class TestSourceBloc extends Blocnode {
         super(RootBloc);
 
         this.log('Instantiate Test Source Bloc');
+        this.addDependency('TestLocal');
     }
 
     async main() {

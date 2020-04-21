@@ -25,10 +25,8 @@ class Blocnode {
             if(this.isRoot) {
                 if(!blocs.find(item => item === Bloc.name)) {
                     if(Bloc.Class && (Bloc.Class instanceof Blocnode || Bloc.Class.prototype instanceof Blocnode)) {
-                        let newBloc = new Bloc.Class(this);
-
                         if(!namespace[Bloc.name]) {
-                            namespace[Bloc.name] = newBloc;
+                            namespace[Bloc.name] = new Bloc.Class(this);
                         }
                     } else throw new Error(`This [ ${Bloc.name} ] is not a Blocnode class (or extension)`);
                 }
@@ -53,6 +51,17 @@ class Blocnode {
                 return root;
             } else return Rootbloc.require(pathname);
         };
+
+        /**
+         * log
+         * @description Will console.log message according to the state of app
+         * @param message
+         */
+        this.log = (message) => {
+            if(this.isRoot) {
+                if(state.dev) console.log(`[${new Date()}] ${message}`);
+            } else Rootbloc.log(message);
+        }
 
         if(!Rootbloc) {
             /**

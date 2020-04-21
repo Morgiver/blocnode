@@ -13,7 +13,7 @@ class Blocnode {
          */
         this.addBloc = (Bloc) => {
             if(this.isRoot) {
-                if(blocs.find(item => item === Bloc.name)) {
+                if(!blocs.find(item => item === Bloc.name)) {
                     if(Bloc.Class && Bloc.Class instanceof Blocnode) {
                         let newBloc = new Bloc.Class(this);
 
@@ -24,6 +24,16 @@ class Blocnode {
                 }
             } else Rootbloc.addBloc(Bloc);
         }
+
+        /**
+         * getState
+         * @description Access to the state.
+         * @returns Object
+         */
+        this.getState = () => {
+            if(this.isRoot) return state;
+            else return Rootbloc.getState();
+        };
 
         if(!Rootbloc) {
             /**
@@ -60,16 +70,6 @@ class Blocnode {
              */
             this.isRoot = false;
         }
-
-        /**
-         * getState
-         * @description Access to the state.
-         * @returns Object
-         */
-        this.getState = () => {
-            if(this.isRoot) return state;
-            else return Rootbloc.getState();
-        };
     }
 }
 

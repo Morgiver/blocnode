@@ -64,6 +64,9 @@ class Blocnode {
         }
 
         if(!Rootbloc) {
+            this.localblocspath  = './Blocs';
+            this.sourceblocspath = './src/Blocs';
+
             /**
              * We are in the RootBloc, here we can set some method to manage all
              * the blocs.
@@ -92,11 +95,130 @@ class Blocnode {
                     state[pair[0]] = pair[1] || true;
                 }
             }
+
+            /**
+             * getNamespace
+             * @returns Object
+             */
+            this.getNamespace = () => {
+                return namespace;
+            }
+
+            /**
+             * loadNpmBlocs
+             * @returns {Promise<void>}
+             */
+            this.loadNpmBlocs = async (rootPath) => {
+                let dependencies = require(path.join(rootPath, './package.json')).dependencies;
+
+                for(let i in dependencies) {
+                    let parts = i.split('-');
+                    if(parts[0] === "bn") {
+                        this.addBloc(require(i));
+                    }
+                }
+            }
+
+            /**
+             * loadBlocs
+             * @param rootDir
+             * @returns {Promise<void>}
+             */
+            this.loadBlocs = async (blocsDir, blocpath) => {
+                let blocPath = path.join(blocsDir, blocpath);
+                let dir = fs.readdirSync(blocPath);
+
+                for(let i in dir) {
+                    if(i !== "." && i !== "..") {
+                        if(fs.existsSync(`${blocPath}/${dir[i]}`) &&
+                            fs.lstatSync(`${blocPath}/${dir[i]}`).isDirectory()) {
+                            let bloc = require(`${blocPath}/${dir[i]}`);
+                            this.addBloc(bloc);
+                        }
+                    }
+                }
+            }
+
+            /**
+             * loadLocalBlocs
+             * @param blocsDir
+             * @returns {Promise<void>}
+             */
+            this.loadLocalBlocs = async (blocsDir) => {
+                await this.loadBlocs(blocsDir, this.localblocspath);
+            }
+
+            /**
+             * loadSourceBlocs
+             * @param rootDir
+             * @returns {Promise<void>}
+             */
+            this.loadSourceBlocs = async (rootDir) => {
+                await this.loadBlocs(rootDir, this.sourceblocspath);
+            }
+
+            /**
+             * loadAllBlocs
+             * @returns {Promise<void>}
+             */
+            this.loadAllBlocs = async (rootDir, blocsDir) => {
+                await this.loadNpmBlocs(rootDir);
+                await this.loadSourceBlocs(rootDir);
+                await this.loadLocalBlocs(blocsDir);
+            }
+
+            /**
+             * initBlocs
+             * @returns {Promise<void>}
+             */
+            this.initBlocs = async () => {
+                for(let i in namespace) {
+                    await namespace[i].main();
+                }
+            }
         } else {
             /**
              * We're not in the RootBloc, defining it as it is.
              */
             this.isRoot = false;
+        }
+    }
+
+    /**
+     * initialize
+     * @param rootDir
+     * @param localBlocs
+     */
+    async initialize(rootDir, localBlocs) {
+        if(this.isRoot) {
+            this.log("Initializing Application");
+
+            await this.loadAllBlocs(rootDir, localBlocs)
+            await this.initBlocs();
+        }
+    }
+
+
+    async onReady() {
+        if(this.isRoot) {
+            let ns = this.getNamespace();
+
+            for(let i in ns) {
+
+            }
+        }
+    }
+
+    /**
+     * main
+     * @param rootDir
+     * @param localBlocs
+     * @returns {Promise<void>}
+     */
+    async main(rootDir, localBlocs) {
+        if(this.isRoot) {
+            await this.initialize(rootDir, localBlocs);
+            await this.onReady();
         }
     }
 }

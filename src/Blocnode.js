@@ -14,6 +14,15 @@ class Blocnode {
         let dependencies = [];
 
         /**
+         * getExcludedBlocs
+         * @returns {[]}
+         */
+        this.getExcludedBlocs = () => {
+            if(this.isRoot) return blocs;
+            else return Rootbloc.getExcludedBlocs();
+        };
+
+        /**
          * getState
          * @description Access to the state.
          * @returns Object
@@ -145,9 +154,9 @@ class Blocnode {
                 let excluded = state.exclude.split(',');
                 state.exclude = excluded;
 
-                excluded.forEach(item => blocs.push(item));
+                excluded.forEach(item => blocs.push(item.toString()));
 
-                this.log(`Some Bloc are excluded : ${state.exclude}`);
+                this.log(`Some Bloc are excluded : ${blocs}`);
             }
 
             /**
@@ -218,8 +227,8 @@ class Blocnode {
              */
             this.loadAllBlocs = async (rootDir, blocsDir) => {
                 await this.loadNpmBlocs(rootDir);
-                await this.loadSourceBlocs(rootDir);
                 await this.loadLocalBlocs(blocsDir);
+                await this.loadSourceBlocs(rootDir);
             }
         } else {
             /**
@@ -229,7 +238,7 @@ class Blocnode {
             this.isReady = false;
 
             this.addDependency = (name) => {
-                if(blocs.find(item => item === name) !== undefined) {
+                if(this.getExcludedBlocs().find(item => item === name) === undefined) {
                     dependencies.push(name);
                 }
             }

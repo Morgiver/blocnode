@@ -138,6 +138,15 @@ class Blocnode {
             }
 
             /**
+             * If param exclude is set, take the string and split it with ","
+             * to get an array of Bloc to exclude
+             */
+            if(state.exclude) {
+                let excluded = state.exclude.split(',');
+                state.exclude = excluded;
+            }
+
+            /**
              * getNamespace
              * @returns Object
              */

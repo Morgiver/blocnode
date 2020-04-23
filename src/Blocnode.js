@@ -144,6 +144,10 @@ class Blocnode {
             if(state.exclude) {
                 let excluded = state.exclude.split(',');
                 state.exclude = excluded;
+
+                excluded.forEach(item => blocs.push(item));
+
+                this.log(`Some Bloc are excluded : ${state.exclude}`);
             }
 
             /**
@@ -225,7 +229,9 @@ class Blocnode {
             this.isReady = false;
 
             this.addDependency = (name) => {
-                dependencies.push(name);
+                if(blocs.find(item => item === name) !== undefined) {
+                    dependencies.push(name);
+                }
             }
         }
     }

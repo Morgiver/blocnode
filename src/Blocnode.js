@@ -204,15 +204,6 @@ class Blocnode {
             }
 
             /**
-             * loadLocalBlocs
-             * @param blocsDir
-             * @returns {Promise<void>}
-             */
-            this.loadLocalBlocs = async (blocsDir) => {
-                await this.loadBlocs(blocsDir, this.localblocspath);
-            }
-
-            /**
              * loadSourceBlocs
              * @param rootDir
              * @returns {Promise<void>}
@@ -227,7 +218,6 @@ class Blocnode {
              */
             this.loadAllBlocs = async (rootDir, blocsDir) => {
                 await this.loadNpmBlocs(rootDir);
-                await this.loadLocalBlocs(blocsDir);
                 await this.loadSourceBlocs(rootDir);
             }
         } else {

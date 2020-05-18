@@ -37,9 +37,9 @@ class Blocnode {
          * @description adding a bloc to the namespace
          * @param Bloc
          */
-        this.addBloc = (Bloc) => {
+        this.addBloc = (Bloc, opt) => {
             if(this.isRoot) {
-                if(!blocs.find(item => item === Bloc.name)) {
+                if((!opt.mode && !opt.excludes.find(item => item === Bloc.name)) || (opt.mode && opt.mode === 'include' && opt.includes.find(item => item === Bloc.name))) {
                     if(Bloc.Class && (Bloc.Class instanceof Blocnode || Bloc.Class.prototype instanceof Blocnode)) {
                         if(!namespace[Bloc.name]) {
                             namespace[Bloc.name] = new Bloc.Class(this);
@@ -47,7 +47,7 @@ class Blocnode {
                         }
                     } else throw new Error(`This [ ${Bloc.name} ] is not a Blocnode class (or extension)`);
                 }
-            } else Rootbloc.addBloc(Bloc);
+            } else Rootbloc.addBloc(Bloc, opt);
         }
 
         /**
@@ -114,9 +114,6 @@ class Blocnode {
         };
 
         if(!Rootbloc) {
-            this.localblocspath  = './';
-            this.sourceblocspath = './src/Blocs';
-
             /**
              * We are in the RootBloc, here we can set some method to manage all
              * the blocs.
@@ -171,13 +168,16 @@ class Blocnode {
              * loadNpmBlocs
              * @returns {Promise<void>}
              */
-            this.loadNpmBlocs = async (rootPath) => {
-                let dependencies = require(path.join(rootPath, './package.json')).dependencies;
+            this.loadNpmBlocs = async (rootPath, opt) => {
+                let nodeDir = path.join(rootPath, opt.nodeModulePath);
+                let dependencies = fs.readdirSync(nodeDir);
 
                 for(let i in dependencies) {
-                    let parts = i.split('-');
-                    if(parts[0] === "bn") {
-                        this.addBloc(require(i));
+                    if(i !== '.' && i !== '..') {
+                        let parts = i.split('-');
+                        if(parts[0] === "bn") {
+                            this.addBloc(require(path.join(nodeDir, `./${i}`)));
+                        }
                     }
                 }
             }
@@ -187,8 +187,8 @@ class Blocnode {
              * @param rootDir
              * @returns {Promise<void>}
              */
-            this.loadBlocs = async (blocsDir, blocpath) => {
-                let dirBlocPath = path.join(blocsDir, blocpath);
+            this.loadBlocs = async (blocsDir, opt) => {
+                let dirBlocPath = path.join(blocsDir, opt.blocPath);
                 let dir = fs.readdirSync(dirBlocPath);
 
                 for(let i in dir) {
@@ -197,7 +197,7 @@ class Blocnode {
 
                         if(fs.existsSync(blocpath) &&
                             fs.lstatSync(blocpath).isDirectory()) {
-                            this.addBloc(require(blocpath));
+                            this.addBloc(require(blocpath), opt);
                         }
                     }
                 }
@@ -208,17 +208,17 @@ class Blocnode {
              * @param rootDir
              * @returns {Promise<void>}
              */
-            this.loadSourceBlocs = async (rootDir) => {
-                await this.loadBlocs(rootDir, this.sourceblocspath);
+            this.loadSourceBlocs = async (rootDir, opt) => {
+                await this.loadBlocs(rootDir, opt);
             }
 
             /**
              * loadAllBlocs
              * @returns {Promise<void>}
              */
-            this.loadAllBlocs = async (rootDir, blocsDir) => {
-                await this.loadNpmBlocs(rootDir);
-                await this.loadSourceBlocs(rootDir);
+            this.loadAllBlocs = async (rootDir, opt) => {
+                await this.loadNpmBlocs(rootDir, opt);
+                await this.loadSourceBlocs(rootDir, opt);
             }
         } else {
             /**
@@ -240,11 +240,11 @@ class Blocnode {
      * @param rootDir
      * @param localBlocs
      */
-    async initialize(rootDir, localBlocs) {
+    async initialize(rootDir, opt) {
         if(this.isRoot) {
             this.log("Initializing Application");
 
-            await this.loadAllBlocs(rootDir, localBlocs)
+            await this.loadAllBlocs(rootDir, opt);
             await this.blocReady("START_APPLICATION");
         }
     }
@@ -260,12 +260,12 @@ class Blocnode {
     /**
      * main
      * @param rootDir
-     * @param localBlocs
+     * @param configuration
      * @returns {Promise<void>}
      */
-    async main(rootDir, localBlocs) {
+    async main(rootDir, configuration = { nodeModulePath: './node_modules', blocPath: './src/Blocs', excludes: [], includes: [] }) {
         if(this.isRoot) {
-            await this.initialize(rootDir, localBlocs);
+            await this.initialize(rootDir, configuration);
         }
     }
 }

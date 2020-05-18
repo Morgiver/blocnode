@@ -8,13 +8,6 @@ describe('Blocnode', function() {
             assert.equal(bloc.isRoot, true);
         });
 
-        it('Should build state from process.argv', function() {
-            let bloc = new Blocnode();
-
-            assert.equal(typeof bloc.getState().nodepath, "string");
-            assert.equal(typeof bloc.getState().rootpath, "string");
-        });
-
         it(`Should add a new Bloc in namespace`, function() {
             let bloc = new Blocnode();
 
@@ -27,7 +20,7 @@ describe('Blocnode', function() {
             bloc.addBloc({
                 name: 'two',
                 Class: TestBloc
-            });
+            }, { nodeModulePath: './node_modules', blocPath: './src/Blocs', excludes: [], includes: [] });
 
             let two = bloc.require('two');
 
@@ -46,7 +39,7 @@ describe('Blocnode', function() {
             bloc.addBloc({
                 name: 'two',
                 Class: TestBloc
-            });
+            }, { nodeModulePath: './node_modules', blocPath: './src/Blocs', excludes: [], includes: [] });
 
             try {
                 let two = bloc.require('two');
@@ -67,7 +60,7 @@ describe('Blocnode', function() {
                 bloc.addBloc({
                     name: 'two',
                     Class: TestBloc
-                });
+                }, { nodeModulePath: './node_modules', blocPath: './src/Blocs', excludes: [], includes: [] });
             } catch(e) {
                 assert.equal(e.message, `This [ two ] is not a Blocnode class (or extension)`);
             }

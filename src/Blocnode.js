@@ -173,10 +173,10 @@ class Blocnode {
                 let dependencies = fs.readdirSync(nodeDir);
 
                 for(let i in dependencies) {
-                    if(i !== '.' && i !== '..') {
-                        let parts = i.split('-');
+                    if(dependencies[i] !== '.' && dependencies[i] !== '..') {
+                        let parts = dependencies[i].split('-');
                         if(parts[0] === "bn") {
-                            this.addBloc(require(path.join(nodeDir, `./${i}`)));
+                            this.addBloc(require(path.join(nodeDir, `./${dependencies[i]}`)), opt);
                         }
                     }
                 }

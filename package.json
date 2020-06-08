@@ -1,7 +1,7 @@
 {
   "name": "blocnode",
-  "version": "0.17.1",
-  "description": "Simple Framework for Client and Server NodeJS App",
+  "version": "0.18.0",
+  "description": "Simple ",
   "main": "index.js",
   "scripts": {
     "test": "mocha"

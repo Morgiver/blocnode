@@ -21,5 +21,11 @@ describe('Blocnode', function() {
             assert(Library.Example.One.MyClassOne.say() === "MyClassOne", true);
             assert(Library.Example.Two.MyClassTwo.say() === "MyClassTwo", true);
         });
+
+        it('# loading stand alone Module : Should load module in stand alone',
+            function() {
+            let Library = (require('./examples/ExampleFileOne.js'))();
+            assert(Library.Example.One.MyClassOne.say() === "MyClassOne", true);
+        });
     });
 });
